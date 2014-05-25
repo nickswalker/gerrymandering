@@ -11,6 +11,7 @@ public class Region extends GridObject {
     private JLabel label;
 
     public static final Color ACTIVE_COLOR = new Color(220,220,220);
+	public static final Color ACTIVE_BORDER_COLOR = new Color(200,200,200);
 
 	public Region(){
         this.party = Party.values()[ (int)(Math.random()*Party.values().length)];
@@ -23,7 +24,7 @@ public class Region extends GridObject {
         this.setLayout(new GridBagLayout());
         this.setFocusable(false);
 		this.setContentAreaFilled(false);
-		this.setUI(new DistrictButtonUI());
+		this.setUI(new RegionButtonUI());
 
         this.label = new JLabel(this.party.abbr);
         this.label.setFont(new Font("Helvetica", Font.BOLD, 21));
@@ -34,8 +35,6 @@ public class Region extends GridObject {
 			this.setBackground(Color.RED);
             this.label.setForeground(Color.RED);
 		}
-
-        this.setBorder(new DistrictBorder(true, true, true, true));
 	}
 
 	public Region(Party party, int population){
@@ -43,12 +42,7 @@ public class Region extends GridObject {
         this.population = population;
     }
     public void setBorder(boolean north, boolean east, boolean south, boolean west){
-        if(active()) {
-            this.setBorder(new DistrictBorder(north, east, south, west, this.party.color.darker()));
-        }
-        else {
-
-        }
+        this.setBorder(new RegionBorder(north, east, south, west, ACTIVE_BORDER_COLOR));
     }
 	public void paint(Graphics g){
 		if (getModel().isPressed()) {
@@ -61,19 +55,17 @@ public class Region extends GridObject {
 		super.paint(g);
 	}
 
-
-
 }
 
-class DistrictButtonUI extends BasicButtonUI {
+class RegionButtonUI extends BasicButtonUI {
 
-	private static final DistrictButtonUI buttonUI = new DistrictButtonUI();
+	private static final RegionButtonUI buttonUI = new RegionButtonUI();
 
-	DistrictButtonUI() {
+	RegionButtonUI() {
 	}
 
 	public static ComponentUI createUI(JComponent c) {
-		return new DistrictButtonUI();
+		return new RegionButtonUI();
 	}
 
 	@Override

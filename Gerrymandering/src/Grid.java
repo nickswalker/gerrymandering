@@ -17,7 +17,7 @@ public class Grid <E extends GridObject> extends JPanel implements ActionListene
     private static final int CELL_PADDING = 5;
 
 	private ArrayList<ArrayList<E>> contents;
-    private GridObjectGroupManager<E> groupManager;
+    private GridObjectGroupManager groupManager = new GridObjectGroupManager();
 	public final int width, height;
 
 
@@ -97,6 +97,18 @@ public class Grid <E extends GridObject> extends JPanel implements ActionListene
         return false;
 
     }
+    //Objects must be on the same grid
+    @NotNull
+    public Direction getDirectionOfAdjacency(E obj1, E obj2){
+
+        EnumMap<Direction, E> obj1Neighbors = this.getCardinalNeighbors(obj1.getGridLocation());
+        for (Map.Entry<Direction, E> entry : obj1Neighbors.entrySet())
+        {
+            if(entry.getValue() == obj2) return entry.getKey();
+        }
+        return Direction.NONE;
+
+    }
     @Override
     //Group behavior:
     //Group forms only when GROUP_SIZE contiguous locations are active.
@@ -109,9 +121,8 @@ public class Grid <E extends GridObject> extends JPanel implements ActionListene
             HashSet<E> set = getContiguousGroup(clicked.location);
 
             if(set.size()>4){
-                for( E obj: set){
-                    obj.setActive(false);
-                }
+                GridObjectGroup<E> group = new GridObjectGroup<E>(set, this);
+                groupManager.add(group);
             }
         }
     }

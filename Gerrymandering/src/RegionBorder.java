@@ -1,13 +1,13 @@
 import javax.swing.border.LineBorder;
 import java.awt.*;
 
-public class DistrictBorder extends LineBorder {
+public class RegionBorder extends LineBorder {
     private boolean top, right, bottom, left;
     private Color color;
     private static final Color DEFAULT_COLOR = Color.BLACK;
-    private static final int DEFAULT_THICKNESS = 2;
+    private static final int DEFAULT_THICKNESS = 8;
 
-    public DistrictBorder(boolean t, boolean r, boolean b, boolean l, Color color) {
+    public RegionBorder(boolean t, boolean r, boolean b, boolean l, Color color) {
         super(color);
         this.thickness = DEFAULT_THICKNESS;
         this.top = t;
@@ -16,7 +16,7 @@ public class DistrictBorder extends LineBorder {
         this.left = l;
 
     }
-    public DistrictBorder(boolean t, boolean r, boolean b, boolean l) {
+    public RegionBorder(boolean t, boolean r, boolean b, boolean l) {
         this(t,r,b,l, DEFAULT_COLOR);
 
     }
