@@ -109,12 +109,38 @@ public class Grid <E extends GridObject> extends JPanel implements ActionListene
         return Direction.NONE;
 
     }
+    public boolean activeOnGrid(){
+
+        for(ArrayList<E> row: this.contents){
+            for( E obj: row){
+                if(obj.active()) return true;
+            }
+        }
+        return false;
+    }
     @Override
     //Group behavior:
     //Group forms only when GROUP_SIZE contiguous locations are active.
     //Groups are disbanded when any object in a group is clicked
     public void actionPerformed(ActionEvent e) {
         E clicked = (E)e.getSource();
+        //Check if is in group
+        GridObjectGroup<E> parentGroup = this.groupManager.gridObjectGroupForGridObject(clicked);
+        if(parentGroup!=null){
+            parentGroup.disband();
+            this.groupManager.remove(parentGroup);
+            return;
+        }
+        if(activeOnGrid()) {
+            //Check if selected is adjacent  to any actives
+            boolean activeNeighbor = false;
+            EnumMap<Direction, E> cardinalNeighbors = this.getCardinalNeighbors(clicked.location);
+            for (Map.Entry<Direction, E> entry : cardinalNeighbors.entrySet()) {
+              if(entry.getValue().active()) activeNeighbor=true;
+            }
+
+            if
+        }
         Location location = clicked.getGridLocation();
         clicked.setActive(!clicked.active());
         if(clicked.active()){

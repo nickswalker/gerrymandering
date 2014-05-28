@@ -1,7 +1,7 @@
 import java.util.HashSet;
 
 public class GridObjectGroup<E extends GridObject> {
-    private HashSet<E> contents = new HashSet<E>();
+    public HashSet<E> contents = new HashSet<E>();
 	private Grid<E> grid;
     private static final int MAX_SIZE= 5;
 
@@ -31,7 +31,6 @@ public class GridObjectGroup<E extends GridObject> {
     }
     private void configureGroupAppearance(){
         for (E obj : this.contents) {
-			System.out.println("Fresh");
             boolean n = true,e = true, s =true,w=true;
             for (E otherInSet : this.contents) {
                 if(otherInSet.location == obj.location ) continue;
@@ -56,8 +55,14 @@ public class GridObjectGroup<E extends GridObject> {
 			}
             Region r = (Region)obj;
 
-            r.setBorder(n,e,s,w);
+            r.setGroupedBorder(n,e,s,w);
 			r.setActive(false);
+        }
+    }
+    public void disband(){
+        for (E obj : this.contents) {
+            Region r = (Region)obj;
+            r.setNormalBorder();
         }
     }
 

@@ -5,7 +5,7 @@ public class RegionBorder extends LineBorder {
     private boolean top, right, bottom, left;
     private Color color;
     private static final Color DEFAULT_COLOR = Color.BLACK;
-    private static final int DEFAULT_THICKNESS = 8;
+    private static final int DEFAULT_THICKNESS = 2;
 
     public RegionBorder(boolean t, boolean r, boolean b, boolean l, Color color) {
         super(color);
@@ -28,12 +28,13 @@ public class RegionBorder extends LineBorder {
         //float dash[] = { thickness * 2 };
         //g2d.setStroke( new BasicStroke(thickness, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1f, dash, 0));
         g2d.setStroke( new BasicStroke(this.thickness));
+        int thicknessOffset = thickness/2;
         //Top
         if(this.top) g2d.drawLine(x,y,x+width,y);
         //Right
-        if(this.right) g2d.drawLine(x+width,y,x+width,y+height);
+        if(this.right) g2d.drawLine(x+width-thicknessOffset,y,x+width-thicknessOffset,y+height);
         //Bottom
-        if(this.bottom) g2d.drawLine(x,y+height,x+width,y+height);
+        if(this.bottom) g2d.drawLine(x,y+height-thicknessOffset,x+width,y+height-thicknessOffset);
         //Left
         if(this.left) g2d.drawLine(x,y,x,y+height);
 
@@ -41,18 +42,14 @@ public class RegionBorder extends LineBorder {
 
     }
     public Insets getBorderInsets(Component c) {
-        return new Insets(  top ? thickness : 0,
-                            right ? thickness : 0,
-                            bottom ? thickness : 0,
-                            left ? thickness : 0
-        );
+        return new Insets(thickness, thickness, thickness, thickness);
     }
 
     public Insets getBorderInsets(Component c, Insets insets) {
-        insets.left = this.left ? thickness : 0;
-        insets.top = this.top ? thickness : 0;
-        insets.right = this.right ? thickness : 0;
-        insets.bottom = this.bottom ? thickness : 0;
+        insets.left = thickness;
+        insets.top = thickness;
+        insets.right = thickness;
+        insets.bottom = thickness;
         return insets;
     }
 

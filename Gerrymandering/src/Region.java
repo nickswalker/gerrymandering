@@ -11,7 +11,8 @@ public class Region extends GridObject {
     private JLabel label;
 
     public static final Color ACTIVE_COLOR = new Color(220,220,220);
-	public static final Color ACTIVE_BORDER_COLOR = new Color(200,200,200);
+    public static final Color DEFAULT_BORDER_COLOR = new Color(160,160,160);
+	public static final Color GROUPED_BORDER_COLOR = new Color(90,90,90);
 
 	public Region(){
         this.party = Party.values()[ (int)(Math.random()*Party.values().length)];
@@ -41,8 +42,11 @@ public class Region extends GridObject {
         this.party = party;
         this.population = population;
     }
-    public void setBorder(boolean north, boolean east, boolean south, boolean west){
-        this.setBorder(new RegionBorder(north, east, south, west, ACTIVE_BORDER_COLOR));
+    public void setGroupedBorder(boolean north, boolean east, boolean south, boolean west){
+        this.setBorder(new RegionBorder(north, east, south, west, GROUPED_BORDER_COLOR));
+    }
+    public void setNormalBorder(){
+        this.setBorder(new RegionBorder(true, true, true, true, DEFAULT_BORDER_COLOR));
     }
 	public void paint(Graphics g){
 		if (getModel().isPressed()) {
