@@ -17,7 +17,7 @@ public class Grid <E extends GridObject> extends JPanel implements ActionListene
     private static final int CELL_PADDING = 5;
 
 	private ArrayList<ArrayList<E>> contents;
-    private GridObjectGroupManager groupManager = new GridObjectGroupManager();
+    private GridObjectGroupManager<GridObjectGroup<E>> groupManager = new GridObjectGroupManager();
 	public final int width, height;
 
 
@@ -118,6 +118,13 @@ public class Grid <E extends GridObject> extends JPanel implements ActionListene
         }
         return false;
     }
+    public void deactivateAllOnGrid(){
+        for(ArrayList<E> row: this.contents){
+            for( E obj: row){
+                obj.setActive(false);
+            }
+        }
+    }
     @Override
     //Group behavior:
     //Group forms only when GROUP_SIZE contiguous locations are active.
@@ -132,14 +139,17 @@ public class Grid <E extends GridObject> extends JPanel implements ActionListene
             return;
         }
         if(activeOnGrid()) {
-            //Check if selected is adjacent  to any actives
+            //Check if selected is adjacent to any actives
             boolean activeNeighbor = false;
             EnumMap<Direction, E> cardinalNeighbors = this.getCardinalNeighbors(clicked.location);
             for (Map.Entry<Direction, E> entry : cardinalNeighbors.entrySet()) {
               if(entry.getValue().active()) activeNeighbor=true;
             }
 
-            if
+            if(!activeNeighbor){
+              deactivateAllOnGrid();
+              clicked.setActive(true);
+            }
         }
         Location location = clicked.getGridLocation();
         clicked.setActive(!clicked.active());
@@ -149,8 +159,10 @@ public class Grid <E extends GridObject> extends JPanel implements ActionListene
             if(set.size()>4){
                 GridObjectGroup<E> group = new GridObjectGroup<E>(set, this);
                 groupManager.add(group);
+                System.out.println(this.groupManager.checkScore());
             }
         }
+
     }
 
     public HashSet<E> getContiguousGroup( Location start){
