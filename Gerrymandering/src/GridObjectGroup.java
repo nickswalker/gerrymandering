@@ -76,7 +76,6 @@ public class GridObjectGroup<E extends GridObject> {
             groupTally.put(r.party, 1+groupTally.get(r.party));
         }
         Map.Entry<Party, Integer> maxEntry = null;
-
         for (Map.Entry<Party, Integer> entry : groupTally.entrySet())
         {
             if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0)

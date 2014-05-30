@@ -162,6 +162,19 @@ public class Grid <E extends GridObject> extends JPanel implements ActionListene
                 System.out.println(this.groupManager.checkScore());
             }
         }
+		if(groupManager.size() >= (this.width * this.height)/5 ){
+			EnumMap<Party, Integer> results = this.groupManager.checkScore();
+			Map.Entry<Party, Integer> maxEntry = null;
+			for (Map.Entry<Party, Integer> entry : results.entrySet())
+			{
+				if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0)
+				{
+					maxEntry = entry;
+				}
+			}
+			String endGameMessage = "The " + maxEntry.getKey() + " party wins the election!";
+			JOptionPane.showMessageDialog(SwingUtilities.windowForComponent(this), endGameMessage);
+		}
 
     }
 

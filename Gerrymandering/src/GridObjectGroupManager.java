@@ -11,6 +11,9 @@ public class GridObjectGroupManager<E> {
     public boolean add(E set){
         return groups.add(set);
     }
+	public int size(){
+		return groups.size();
+	}
     public EnumMap<Party,Integer> checkScore(){
         EnumMap<Party, Integer> groupTally = new EnumMap<Party, Integer>(Party.class);
 		for(Party party : Party.values()){
