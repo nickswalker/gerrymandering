@@ -1,3 +1,5 @@
+package gerrymandering;
+
 import java.awt.*;
 
 public enum Party {

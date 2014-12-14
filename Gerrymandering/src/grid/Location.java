@@ -1,6 +1,7 @@
+package grid;
 
 /**
- * A <code>Location</code> object represents the row and column of a location
+ * A <code>grid.Location</code> object represents the row and column of a location
  * in a two-dimensional grid. <br />
  * The API of this class is testable on the AP CS A and AB exams.
  */
@@ -174,11 +175,11 @@ public class Location implements Comparable
     }
 
     /**
-     * Indicates whether some other <code>Location</code> object is "equal to"
+     * Indicates whether some other <code>grid.Location</code> object is "equal to"
      * this one.
      * @param other the other location to test
      * @return <code>true</code> if <code>other</code> is a
-     * <code>Location</code> with the same row and column as this location;
+     * <code>grid.Location</code> with the same row and column as this location;
      * <code>false</code> otherwise
      */
     public boolean equals(Object other)
@@ -204,7 +205,7 @@ public class Location implements Comparable
      * negative integer, zero, or a positive integer as this location is less
      * than, equal to, or greater than <code>other</code>. Locations are
      * ordered in row-major order. <br />
-     * (Precondition: <code>other</code> is a <code>Location</code> object.)
+     * (Precondition: <code>other</code> is a <code>grid.Location</code> object.)
      * @param other the other location to test
      * @return a negative integer if this location is less than
      * <code>other</code>, zero if the two locations are equal, or a positive
