@@ -43,9 +43,7 @@ public abstract class GridObject extends JButton {
         return this.active;
     }
 
-    public abstract void setGrouped(boolean value);
-
-    public abstract void setGroupedBorder(boolean n, boolean e, boolean s, boolean w);
+    public abstract void setGrouped(boolean n, boolean e, boolean s, boolean w);
 
     public abstract boolean isGroupable(GridObject object);
 }

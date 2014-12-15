@@ -69,14 +69,14 @@ public class GridObjectGroup<E extends GridObject> {
                 }
             }
 
-            member.setGroupedBorder(n, e, s, w);
+            member.setGrouped(n, e, s, w);
             member.setActive(false);
         }
     }
 
     public void disband() {
         for (E member : this.contents) {
-            member.setGrouped(false);
+            member.setGrouped(false,false,false,false);
         }
     }
 

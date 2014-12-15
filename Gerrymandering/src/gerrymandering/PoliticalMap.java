@@ -27,10 +27,10 @@ public class PoliticalMap {
         }
     }
 
-    public void setUpGrid(Grid<Region> grid){
-        for (int r = 0; r < grid.width; r++) {
-            for (int c = 0; c < grid.height; c++) {
-                grid.put(map[r][c],c,r);
+    public void setUpGrid(Grid<Region> grid) {
+        for (int r = 0; r < grid.height; r++) {
+            for (int c = 0; c < grid.width; c++) {
+                grid.put(map[r][c], c, r);
             }
         }
     }

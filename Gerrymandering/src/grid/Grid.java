@@ -19,10 +19,12 @@ public class Grid<E extends GridObject> extends JPanel implements ActionListener
     private static final Dimension CELL_DIMENSION = new Dimension(CELL_WIDTH, CELL_HEIGHT);
     private static final int CELL_PADDING = 5;
 
+
     private ArrayList<ArrayList<E>> contents;
     private GridObjectGroupManager<GridObjectGroup<E>> groupManager = new GridObjectGroupManager<>();
     public final int width, height;
     private GridDelegate delegate;
+    private int groupSize = 0;
 
 
     public Grid(int height, int width) {
@@ -41,6 +43,14 @@ public class Grid<E extends GridObject> extends JPanel implements ActionListener
         setLayout(layout);
         setPreferredSize(new Dimension(600, 600));
         setVisible(true);
+    }
+
+    public void setGroupSize(int size) {
+        this.groupSize = size;
+    }
+
+    public int getGroupSize() {
+        return this.groupSize;
     }
 
     public void put(E object, int x, int y) {
@@ -189,17 +199,17 @@ public class Grid<E extends GridObject> extends JPanel implements ActionListener
                 clicked.setActive(true);
             }
         }
-        Location location = clicked.getGridLocation();
         clicked.setActive(!clicked.active());
         if (clicked.active()) {
             HashSet<E> set = getContiguousGroup(clicked.location);
 
-            if (set.size() > 4) {
+            if (set.size() >= this.groupSize) {
                 GridObjectGroup<E> group = new GridObjectGroup<>(set, this);
+                groupManager.add(group);
                 if (delegate != null) {
                     delegate.groupCreated(group);
                 }
-                groupManager.add(group);
+
 
             }
         }

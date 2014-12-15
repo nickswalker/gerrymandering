@@ -52,7 +52,7 @@ public class Region extends GridObject {
         this.population = population;
     }
 
-    public void setGroupedBorder(boolean north, boolean east, boolean south, boolean west) {
+    public void setGrouped(boolean north, boolean east, boolean south, boolean west) {
         this.setBorder(new RegionBorder(north, east, south, west, GROUPED_BORDER_COLOR));
     }
 
@@ -71,9 +71,6 @@ public class Region extends GridObject {
         super.paint(g);
     }
 
-    @Override
-    public void setGrouped(boolean value) {
-    }
 
     @Override
     public boolean isGroupable(GridObject object) {

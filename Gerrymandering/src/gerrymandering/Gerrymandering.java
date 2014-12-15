@@ -24,6 +24,7 @@ public class Gerrymandering extends JFrame implements GridDelegate {
         //Make a ten by ten grid that will host Regions
         map = new PoliticalMap(10, 10);
         grid = new Grid<>(10, 10);
+        grid.setGroupSize(5);
         map.setUpGrid(grid);
         this.setSize(new Dimension(500, 500));
         grid.setDelegate(this);
@@ -52,7 +53,7 @@ public class Gerrymandering extends JFrame implements GridDelegate {
 
     public void groupCreated(GridObjectGroup group) {
         System.out.println(checkScore());
-        if (grid.getGroups().size() >= (grid.width * grid.height) / 5) {
+        if (grid.getGroups().size() >= (grid.width * grid.height) / grid.getGroupSize()) {
             EnumMap<Party, Integer> results = checkScore();
             Map.Entry<Party, Integer> maxEntry = null;
             for (Map.Entry<Party, Integer> entry : results.entrySet()) {
