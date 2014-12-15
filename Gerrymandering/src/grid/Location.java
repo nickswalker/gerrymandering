@@ -1,9 +1,7 @@
 package grid;
 
 /**
- * A <code>grid.Location</code> object represents the row and column of a location
- * in a two-dimensional grid. <br />
- * The API of this class is testable on the AP CS A and AB exams.
+ * Shamelessly stolen from gridworld, the old APCS lab environment.
  */
 public class Location implements Comparable
 {

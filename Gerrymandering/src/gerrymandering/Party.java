@@ -2,6 +2,9 @@ package gerrymandering;
 
 import java.awt.*;
 
+/**
+ Represents the political parties in the game.
+ */
 public enum Party {
 
 	DEMOCRAT("Democrat","D", Color.BLUE),

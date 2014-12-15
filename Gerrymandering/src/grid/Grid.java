@@ -1,30 +1,31 @@
 package grid;
 
-import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Set;
 
 /**
  Class that represents a 2D grid of objects.
 
- @param <E>  */
+ @param <E> The type of GridObject that the grid should store */
 public class Grid<E extends GridObject> extends JPanel implements ActionListener {
 
     private static final int CELL_WIDTH = 100, CELL_HEIGHT = 100;
     private static final Dimension CELL_DIMENSION = new Dimension(CELL_WIDTH, CELL_HEIGHT);
     private static final int CELL_PADDING = 5;
 
-
+    //Has to be an arraylist to store the generic elements
     private ArrayList<ArrayList<E>> contents;
-    private GridObjectGroupManager<GridObjectGroup<E>> groupManager = new GridObjectGroupManager<>();
+    private GridGroupManager groupManager = new GridGroupManager();
     public final int width, height;
     private GridDelegate delegate;
     private int groupSize = 0;
+    private GridGroup currentGroup;
 
 
     public Grid(int height, int width) {
@@ -38,8 +39,8 @@ public class Grid<E extends GridObject> extends JPanel implements ActionListener
         this.setBackground(Color.WHITE);
         this.setOpaque(true);
 
-        GridLayout layout = new GridLayout(10, 10, 0, 0);
-        //layout.preferredLayoutSize(new Container());
+        GridLayout layout = new GridLayout(height, width, 0, 0);
+
         setLayout(layout);
         setPreferredSize(new Dimension(600, 600));
         setVisible(true);
@@ -54,7 +55,7 @@ public class Grid<E extends GridObject> extends JPanel implements ActionListener
     }
 
     public void put(E object, int x, int y) {
-        object.location = new Location(y, x);
+        object.setLocation(new Location(y, x));
         this.contents.get(y).add(x, object);
 
         object.setPreferredSize(CELL_DIMENSION);
@@ -84,164 +85,86 @@ public class Grid<E extends GridObject> extends JPanel implements ActionListener
         return true;
     }
 
-    //Doesn't always contain 4!
-    public EnumMap<Direction, Location> getCardinalLocations(Location center) {
-
-        int r = center.getRow();
-        int c = center.getCol();
-        EnumMap<Direction, Location> temp = new EnumMap<>(Direction.class);
-        Location north = new Location(r - 1, c);
-        Location east = new Location(r, c + 1);
-        Location south = new Location(r + 1, c);
-        Location west = new Location(r, c - 1);
-        if (this.checkIfLocationIsValidForGrid(north)) {
-            temp.put(Direction.NORTH, north);
-        }
-        if (this.checkIfLocationIsValidForGrid(east)) {
-            temp.put(Direction.EAST, east);
-        }
-        if (this.checkIfLocationIsValidForGrid(south)) {
-            temp.put(Direction.SOUTH, south);
-        }
-        if (this.checkIfLocationIsValidForGrid(west)) {
-            temp.put(Direction.WEST, west);
-        }
-
-        return temp;
-    }
-
-    @NotNull
-    public EnumMap<Direction, E> getCardinalNeighbors(Location l) {
-        EnumMap<Direction, Location> cardinalLocations = this.getCardinalLocations(l);
-        EnumMap<Direction, E> cardinalNeighbors = new EnumMap<>(Direction.class);
-        for (Map.Entry<Direction, Location> entry : cardinalLocations.entrySet()) {
-            cardinalNeighbors.put(entry.getKey(), this.get(entry.getValue()));
-        }
-
-        return cardinalNeighbors;
-    }
 
     //Objects must be on the same grid
-    public boolean objectsAreCardinalNeighbors(E obj1, E obj2) {
-        EnumMap<Direction, E> obj1Neighbors = this.getCardinalNeighbors(obj1.getGridLocation());
-        for (Map.Entry<Direction, E> entry : obj1Neighbors.entrySet()) {
-            if (entry.getValue() == obj2) {
-                return true;
-            }
-        }
-        return false;
+    public boolean locationsAreCardinalNeighbors(Location l1, Location l2) {
+        int deltaX = Math.abs(l1.getCol() - l2.getCol());
+        int deltaY = Math.abs(l1.getRow() - l2.getRow());
+        //If either is more than one square away, they can't be adjacent
+        return !(deltaX > 1 || deltaY > 1);
 
     }
 
     //Objects must be on the same grid
-    @NotNull
-    public Direction getDirectionOfAdjacency(E obj1, E obj2) {
-
-        EnumMap<Direction, E> obj1Neighbors = this.getCardinalNeighbors(obj1.getGridLocation());
-        for (Map.Entry<Direction, E> entry : obj1Neighbors.entrySet()) {
-            if (entry.getValue() == obj2) {
-                return entry.getKey();
+    @Nullable
+    public static Direction getDirectionOfAdjacency(Location l1, Location l2) {
+        int deltaX = l1.getCol() - l2.getCol();
+        int deltaY = l1.getRow() - l2.getRow();
+        if (deltaX == 0) {
+            switch (deltaY) {
+                case -1:
+                    return Direction.NORTH;
+                case 1:
+                    return Direction.SOUTH;
             }
         }
-        return Direction.NONE;
-
-    }
-
-    public boolean activeOnGrid() {
-
-        for (ArrayList<E> row : this.contents) {
-            for (E obj : row) {
-                if (obj.active()) {
-                    return true;
-                }
+        if (deltaY == 0) {
+            switch (deltaX) {
+                case -1:
+                    return Direction.WEST;
+                case 1:
+                    return Direction.EAST;
             }
         }
-        return false;
+        return null;
     }
 
-    public void deactivateAllOnGrid() {
-        for (ArrayList<E> row : this.contents) {
-            for (E obj : row) {
-                obj.setActive(false);
-            }
-        }
-    }
-
-    public Set<GridObjectGroup<E>> getGroups() {
+    public Set<GridGroup> getGroups() {
         return groupManager.getGroups();
     }
 
+    /**
+     Called when the grid is clicked.
+
+     @param e
+     */
     @Override
-    //Group behavior:
-    //Group forms only when GROUP_SIZE contiguous locations are active.
-    //Groups are disbanded when any object in a group is clicked
     public void actionPerformed(ActionEvent e) {
+        //We know that the only thing on the grid are our gridobjects,
+        //so we'll just cast the source straight to the generic type.
         E clicked = (E) e.getSource();
-        //Check if is in group
-        GridObjectGroup<E> parentGroup = groupManager.gridObjectGroupForGridObject(clicked);
-        if (parentGroup != null) {
+        Location clickedLocation = clicked.getGridLocation();
+        if (currentGroup != null && currentGroup.contains(clickedLocation)) {
+            currentGroup.disband();
+            currentGroup = null;
+        } else if (clicked.isInGroup()) {
+            //Check if is in group, disband it if it is
+            GridGroup parentGroup = groupManager.groupForObject(clicked);
             parentGroup.disband();
             this.groupManager.remove(parentGroup);
-            return;
-        }
-        if (activeOnGrid()) {
-            //Check if selected is adjacent to any actives
-            boolean activeNeighbor = false;
-            EnumMap<Direction, E> cardinalNeighbors = this.getCardinalNeighbors(clicked.location);
-            for (Map.Entry<Direction, E> entry : cardinalNeighbors.entrySet()) {
-                if (entry.getValue().active()) {
-                    activeNeighbor = true;
+
+        } else if (!clicked.active()) {
+            if (currentGroup == null) {
+                currentGroup = new GridGroup(clickedLocation, this);
+
+            } else {
+                boolean adjacent = currentGroup.adjacentTo(clickedLocation);
+                if (adjacent) {
+                    currentGroup.add(clickedLocation);
+                } else {
+                    currentGroup.disband();
+                    currentGroup = new GridGroup(clickedLocation, this);
                 }
             }
-
-            if (!activeNeighbor) {
-                deactivateAllOnGrid();
-                clicked.setActive(true);
-            }
-        }
-        clicked.setActive(!clicked.active());
-        if (clicked.active()) {
-            HashSet<E> set = getContiguousGroup(clicked.location);
-
-            if (set.size() >= this.groupSize) {
-                GridObjectGroup<E> group = new GridObjectGroup<>(set, this);
-                groupManager.add(group);
+            if (currentGroup.isComplete()) {
+                groupManager.add(currentGroup);
                 if (delegate != null) {
-                    delegate.groupCreated(group);
+                    delegate.groupCreated(currentGroup);
                 }
-
-
+                currentGroup = null;
             }
         }
 
-    }
-
-
-    public HashSet<E> getContiguousGroup(Location start) {
-        HashSet<E> set = new HashSet<>();
-        this.populateSetWithNeighbors(start, set);
-        return set;
-
-    }
-
-    //Recursive
-    @NotNull
-    private int populateSetWithNeighbors(Location start, HashSet<E> set) {
-        //Get start neighbors
-        EnumMap<Direction, E> immediateNeighbors = this.getCardinalNeighbors(start);
-
-        //Check if they're active
-        for (Map.Entry<Direction, E> entry : immediateNeighbors.entrySet()) {
-            E obj = entry.getValue();
-            Location location = entry.getValue().location;
-            if (obj.active()) {
-                //If it's unique thus far (it can successfully added to the set, search it's neighbors
-                if (set.add(obj)) {
-                    populateSetWithNeighbors(location, set);
-                }
-            }
-        }
-        return set.size();
     }
 
     public void setDelegate(GridDelegate delegate) {

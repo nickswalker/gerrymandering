@@ -4,9 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 
 public abstract class GridObject extends JButton {
-    protected Location location;
-    protected Grid grid;
+    private Location location;
+    private Grid grid;
     private boolean active;
+    private boolean grouped;
 
     public GridObject() {
         setPreferredSize(new Dimension(50, 50));
@@ -18,6 +19,10 @@ public abstract class GridObject extends JButton {
 
     public Location getGridLocation() {
         return this.location;
+    }
+
+    protected void setLocation(Location l) {
+        this.location = l;
     }
 
     /**
@@ -43,7 +48,13 @@ public abstract class GridObject extends JButton {
         return this.active;
     }
 
-    public abstract void setGrouped(boolean n, boolean e, boolean s, boolean w);
+    public boolean isInGroup() {
+        return grouped;
+    }
+
+    public void setGrouped(boolean value) {
+        this.grouped = value;
+    }
 
     public abstract boolean isGroupable(GridObject object);
 }

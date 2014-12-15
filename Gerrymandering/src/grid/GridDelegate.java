@@ -2,5 +2,5 @@ package grid;
 
 public interface GridDelegate {
 
-    public void groupCreated(GridObjectGroup group);
+    public void groupCreated(GridGroup group);
 }

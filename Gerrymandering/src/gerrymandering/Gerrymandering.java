@@ -1,8 +1,6 @@
 package gerrymandering;
 
-import grid.Grid;
-import grid.GridDelegate;
-import grid.GridObjectGroup;
+import grid.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,12 +16,12 @@ public class Gerrymandering extends JFrame implements GridDelegate {
     private PoliticalMap map;
     private Grid<Region> grid;
 
-    public Gerrymandering() {
+    public Gerrymandering(int height, int width) {
         super();
         this.setTitle("Gerrymandering");
         //Make a ten by ten grid that will host Regions
-        map = new PoliticalMap(10, 10);
-        grid = new Grid<>(10, 10);
+        map = new PoliticalMap(height, width);
+        grid = new Grid<>(height, width);
         grid.setGroupSize(5);
         map.setUpGrid(grid);
         this.setSize(new Dimension(500, 500));
@@ -37,13 +35,13 @@ public class Gerrymandering extends JFrame implements GridDelegate {
         setVisible(true);
     }
 
-    public EnumMap<Party, Integer> checkScore() {
-        Set<GridObjectGroup<Region>> groups = grid.getGroups();
+    private EnumMap<Party, Integer> tallyAllVotes() {
+        Set<GridGroup> groups = grid.getGroups();
         EnumMap<Party, Integer> groupTally = new EnumMap<>(Party.class);
         for (Party party : Party.values()) {
             groupTally.put(party, 0);
         }
-        for (GridObjectGroup<Region> group : groups) {
+        for (GridGroup group : groups) {
             Party regionVote = majorityParty(group);
             groupTally.put(regionVote, groupTally.get(regionVote) + 1);
         }
@@ -51,17 +49,17 @@ public class Gerrymandering extends JFrame implements GridDelegate {
         return groupTally;
     }
 
-    public void groupCreated(GridObjectGroup group) {
-        System.out.println(checkScore());
-        if (grid.getGroups().size() >= (grid.width * grid.height) / grid.getGroupSize()) {
-            EnumMap<Party, Integer> results = checkScore();
-            Map.Entry<Party, Integer> maxEntry = null;
-            for (Map.Entry<Party, Integer> entry : results.entrySet()) {
-                if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0) {
-                    maxEntry = entry;
-                }
-            }
-            String endGameMessage = "The " + maxEntry.getKey() + " party wins the election!";
+    public void groupCreated(GridGroup group) {
+
+        Color groupColor = colorForGroup(group);
+        for (Location location : group) {
+            GridObject object = grid.get(location);
+            object.setBackground(groupColor);
+        }
+
+        if (gameIsOver()) {
+            Map.Entry<Party, Integer> winner = determineWinner();
+            String endGameMessage = "The " + winner.getKey().name() + " party wins the election!";
             JOptionPane.showMessageDialog(SwingUtilities.windowForComponent(this), endGameMessage);
         }
     }
@@ -71,19 +69,12 @@ public class Gerrymandering extends JFrame implements GridDelegate {
      necessary objects.
      */
     public static void main(String[] args) {
-        Gerrymandering gerrymandering = new Gerrymandering();
+        Gerrymandering gerrymandering = new Gerrymandering(10, 10);
 
     }
 
-    public Party majorityParty(GridObjectGroup<Region> group) {
-        EnumMap<Party, Integer> groupTally = new EnumMap<>(Party.class);
-        for (Party party : Party.values()) {
-            groupTally.put(party, 0);
-        }
-        for (Region r : group.contents) {
-
-            groupTally.put(r.party, 1 + groupTally.get(r.party));
-        }
+    private Party majorityParty(GridGroup group) {
+        EnumMap<Party, Integer> groupTally = districtTally(group);
         Map.Entry<Party, Integer> maxEntry = null;
         for (Map.Entry<Party, Integer> entry : groupTally.entrySet()) {
             if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0) {
@@ -91,6 +82,45 @@ public class Gerrymandering extends JFrame implements GridDelegate {
             }
         }
         return maxEntry.getKey();
+    }
+
+    private EnumMap<Party, Integer> districtTally(GridGroup group) {
+        EnumMap<Party, Integer> groupTally = new EnumMap<>(Party.class);
+        for (Party party : Party.values()) {
+            groupTally.put(party, 0);
+        }
+        for (Location l : group.contents) {
+            Region r = grid.get(l);
+            groupTally.put(r.party, 1 + groupTally.get(r.party));
+        }
+        return groupTally;
+    }
+
+    private boolean gameIsOver() {
+        return grid.getGroups().size() >= (grid.width * grid.height) / grid.getGroupSize();
+    }
+
+    private Map.Entry<Party, Integer> determineWinner() {
+        EnumMap<Party, Integer> results = tallyAllVotes();
+        Map.Entry<Party, Integer> maxEntry = null;
+        for (Map.Entry<Party, Integer> entry : results.entrySet()) {
+            if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0) {
+                maxEntry = entry;
+            }
+        }
+        return maxEntry;
+    }
+
+    private Color colorForGroup(GridGroup group) {
+        EnumMap<Party, Integer> tally = districtTally(group);
+        Party majorityParty = majorityParty(group);
+        float strength = (float) tally.get(majorityParty) / grid.getGroupSize();
+        Color partyColor = majorityParty.color;
+        int newRed = (int) ((float) partyColor.getRed() * strength);
+        int newGreen = (int) ((float) partyColor.getGreen() * strength);
+        int newBlue = (int) ((float) partyColor.getBlue() * strength);
+        return new Color(255 - (newBlue + newGreen) / 2, 255 - (newBlue + newRed) / 2, 255 - (newGreen + newRed) / 2);
+
     }
 
 }
